@@ -8,12 +8,17 @@ import (
 	"github.com/go-redis/redis/v8"
 	"github.com/stretchr/testify/assert"
 
+	"github.com/alicebob/miniredis"
 	"github.com/go-redis/redis_rate/v9"
 )
 
 func rateLimiter() *redis_rate.Limiter {
+	mr, err := miniredis.Run()
+	if err != nil {
+		panic(err)
+	}
 	ring := redis.NewRing(&redis.RingOptions{
-		Addrs: map[string]string{"server0": ":6379"},
+		Addrs: map[string]string{"server0": mr.Addr()},
 	})
 	if err := ring.FlushDB(context.TODO()).Err(); err != nil {
 		panic(err)
